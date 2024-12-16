@@ -455,76 +455,75 @@ First you will work through a tutorial on image processing and particle location
 Particle location relies on having good images where the only features are the colloids themselves. The image filtering step filters high and low frequency noise and applies a fixed background subtraction such that the background equals a pixel value of $0$. Open the function file \lstinline{bpass.m} and read through the code.
 
 \begin{itemize}
-    \item What is the background value of the raw image?
-    \item Open the function file \lstinline{bpass.m}.
-    \item Define the inputs to the function.
+    \item Define the arguments to the function.
     \vspace{1cm}
-
-    \item Run the function with the following inputs: \lstinline{bpass(image, true, true, 3, false)}.
+    \item Run the function with one of your images \lstinline{bpass(image, true, true, 1, true)}.
     \item Change the value for the background until all the background is removed.
-    \item Save the filtered image.
-    \item Change the input for ns and nl to integers and try to replicate the same filtered image. Record your final values below.
-        \vspace{1cm}
-         \item How does your value for ns and nl relate to the size of the particle?
-        \vspace{1cm}   
+    \item Change the input for \lstinline{hpass} and \lstinline{lpass} to integers and explore the parameter space.
+
+    % \item How does your value for ns and nl relate to the size of the particle?
+    % These paramters have nothing to do with the size of the particle, they are the size of the filter kernels. The size of the filter kernel is related to the size of the features you want to remove from the image. particle size doesn't come in until cntrd.m
+ 
 \end{itemize}
-
-
 
 \subsection{Particle Location}
 
-Once the image is processed the particle locations can be found. This takes places via a two step process where the rough location is found to the nearest pixel and then the fit is refined with subpixel accuracy. 
+Once the image is processed the particle locations can be found. This is a two step process, where the brightest pixels are found with \lstinline{pkfnd.m} then these pixel coordinates are used by \lstinline{cntrd.m} to calculate the subpixel coordinates of the particles.
 
 \begin{itemize}
-    \item Open the function pkfnd.
+    \item Open the function \lstinline{pkfnd.m}.
     \item Define the inputs.
         \vspace{1cm}
     \item Define the outputs.
         \vspace{1cm}
     \item On what basis is the particle centre found?
         \vspace{1cm}
-      \item Run this section with the following inputs: $pkfnd(filtered,10,3)$
+      \item Run this section with the following inputs: \lstinline{pkfnd(filtered, 10, 3)}
         \vspace{1cm}   
     \item Find the peaks in the raw and the filtered image, how would tracking unprocessed images affect results?
         \vspace{1cm}
 \end{itemize}
 
- Once the rough peaks are found the positions are refined by a subpixel fitting routine
+Once the peak pixels are found, the positions are refined by \lstinline{cntrd.m}.
 
 \begin{itemize}
-    \item Open the function cntrd
-    \item Describe in words how the fitting is carried out
+    \item Open the function \lstinline{cntrd.m}.
+    \item Describe in words how the function calculates the sub-pixel coordinate.
         \vspace{1cm}
-    \item Define the output
+    \item Define the output.
         \vspace{1cm}
-     \item Run this section with the following inputs: $cntrd(filtered,estpks,5,true,1)$
+     \item Run the function with the following arguments, \lstinline{cntrd(filtered, est_pks, 5, true, 1)}
         \vspace{1cm}   
 \end{itemize}
 
 %Pixel Biasing
 
-Create a figure either in Matlab or Powerpoint of the raw, filtered, filtered with rough positions and filtered with refined positions.
+Create a figure either in Matlab or PowerPoint of the raw image, filtered image, filtered image with \lstinline{est_pks} and filtered image with \lstinline{cntrds}.
 
 \subsection{Create Tracking Loop}
-A convenient way to store information in Matlab uses structures where each field within a structure contains an array e.g. if COORD is a structure with one field, cntrds, the positions for frame t can be stored in COORD(t).cntrds.
-Rewrite the tracking procedure as a loop over all frames where the final coords are found in the structure COORD.
-Note before the coordinates are stored add a fourth column containing the timepoint. Your loop should not involve showing/plotting anything.
+
+A convenient way to store information in Matlab is to use structures, where each field within a structure contains an array e.g. if \lstinline{COORD} is a structure with one field, \lstinline{cntrds}, the positions for frame $t$ can be stored in \lstinline{COORD(t).cntrds}.
+
+Rewrite the tracking procedure as a loop over all frames where the final coordinates are stored in a structure called \lstinline{COORD}.
+
+Note before the coordinates are stored add a fourth column containing the timestamp. Ensure you suppress any image or plot displays during the loop iterations.
 
 \subsection{Particle Tracking}
 
 Once we have the particle locations in each frame we must link them up to form trajectories. 
 
 \begin{itemize}
-    \item Open the track function.
+    \item Open the tracking function file, \lstinline{trck.m}.
     \item Define the inputs.
     \vspace{1cm}
     \item Define the outputs.
         \vspace{1cm}
-    \item Track the particles using the diameter as the maximum displacement
+    \item Track the particles using the diameter as the maximum displacement.
 \end{itemize}
 
 \subsection{Analyse Your Own Data}
-Run you tracking loop over your own data. (Not you will have to optimise the parameters for each step, you can use the tutorial script for this).
+
+Run you tracking loop over your own data. (Note you will have to optimise the parameters for each step, you can use the tutorial script for this).
 
 
 \subsection{Mean Square Displacement}
@@ -538,7 +537,7 @@ What function should fit the line?
 
 \begin{itemize}
     \item Import the MSD function into the correct workspace
-    \item Run this function (input = (x y z t ID)
+    \item Run this function \lstinline{input = (x y z t ID)}
     \item Output of this function is the ensemble averaged MSD, describe in a sentence how this averaging is being carried out.
     \item Plot the MSD versus time (in seconds)
 \end{itemize}
@@ -546,26 +545,31 @@ What function should fit the line?
 \subsubsection{Fitting the MSD}
 
 \begin{itemize}
-    \item Using the Matlab function $fit$ fit the MSD versus t(s) with the correct function
+    \item Using the Matlab function \lstinline{fit}, fit the MSD versus $t (s)$ with the correct function.
     \item From this value determine $D_T$. What are the units?
         \vspace{1cm}
     \item What is the value of $D_T$ after fitting over 10 points vs 1000 points? Which is likely to be more accurate
         \vspace{1cm}
-    \item From your $D_T$ determine Avagadro's Number.
-        \vspace{1cm}
 \end{itemize}
+
+\subsubsection{Calculate Avagadro's Number}
+
+Start with Stokes-Einstein equation and using the Ideal Gas Laws, write down the relationship between Avagadro's number, $N_A$ and $D_T$. From your measured $D_T$ calculate Avagadro's Number. 
+
+% $N_A = \frac{R T}{6 \pi \eta r D_T}$
 
 \newpage
 \section{Optical Trapping}
 
-In this section you will utilise the technique of optical trapping to again determine Avagadro's number. Optical trapping is a technique used across many field of science that uses a laser light source to 'trap' a probe which allows direct manipulation and measurements of forces within a sample.
+In this section you will utilise the technique of optical trapping to again determine Avagadro's number. Optical trapping is a technique used across many fields of science that uses a laser light source to 'trap' a probe which allows direct manipulation and measurements of forces within a sample.
 
-Optical trapping relies on a refractive index mismatch between particle and solvent. 
+Optical trapping relies on a refractive index mismatch between particle and solvent.
+
 What type of light source is a laser?
 \vspace{2cm} 
 
 Consider the Fig. \ref{fig:trap} which shows a colloidal particle trapped within a laser beam and a particle displaced from the centre of the beam.
-Consider the first senario:
+Consider the first scenario:
 \begin{itemize}
 	\item What two things happens to the incident ray when it hits the particle?
 	\vspace{2cm}
@@ -575,7 +579,7 @@ Consider the first senario:
 	\vspace{2cm}
 \end{itemize}
 
-Consider the second senario:
+Consider the second scenario:
 \begin{itemize}
 	\item What two things happens to the incident ray when it hits the particle?
 	\vspace{2cm}
@@ -614,31 +618,30 @@ In this section you will carry out this experiment in the laser lab of PCSM. Thi
 	\vspace{2cm}
 \end{itemize}
 	
-$U(r)$ can be approximated as the $-ln(P(r))$, where r is the displacement of the particle. 
+$U(r)$ can be approximated as the $-ln(P(r))$, where $r$ is the displacement of the particle. 
  \begin{itemize}
-	\item Copy the code for MSD into a new file and adapt it to plot ln(P(r).
+	\item Copy the code for MSD into a new file and adapt it to plot $-ln(P(r)$.
 	\item Fit this with the relation given by Hooke's Law to determine the trap stiffness.
 	\vspace{2cm}
 \end{itemize}
 
 The trap stiffness can be related to Boltzmann constant by the equation;
 
-$ \langle x^2 \rangle = k_b \frac{T}{\alpha} $
+$ \langle x^2 \rangle = k_b \frac{T}{\alpha}$
 
-where $\alpha$ is the trap stiffness. 
+where $\alpha$ is the trap stiffness.
 
- \begin{itemize}
-\item Use this relation to determine Boltzmann constant and in turn Avagadro's number.
-          \vspace{2cm}
-\item Which method was more accurate and why?
-	\vspace{2cm}
+\begin{itemize}
+    \item Use this relation to determine Boltzmann constant and in turn Avagadro's number.
+    \vspace{2cm}
+    \item Which method was more accurate and why?
+    \vspace{2cm}
 \end{itemize}
 
 \newpage
 
 \section{Report}
 You may use either Word or LateX to complete your report. It should follow the following layout:
-
 
 \subsection{Introduction}
 Describe the work of Perin (Prep work) and state the aim of this Practical.
